@@ -56,8 +56,8 @@ class MaskGuidedOptimizationPlacer(BasicPlacer):
             for placed_macro in placed_macro_grid_pos:
                 l_scaled_x = max(0, placed_macro_grid_pos[placed_macro][0] - scaled_size_x + 1)
                 l_scaled_y = max(0, placed_macro_grid_pos[placed_macro][1] - scaled_size_y + 1)
-                u_scaled_x = min(self.n_grid_x - 1, placed_macro_grid_pos[placed_macro][0] + self.scale_size[placed_macro]["size_x"])
-                u_scaled_y = min(self.n_grid_y - 1, placed_macro_grid_pos[placed_macro][1] + self.scale_size[placed_macro]["size_y"])
+                u_scaled_x = min(self.n_grid_x, placed_macro_grid_pos[placed_macro][0] + self.scale_size[placed_macro]["size_x"])
+                u_scaled_y = min(self.n_grid_y, placed_macro_grid_pos[placed_macro][1] + self.scale_size[placed_macro]["size_y"])
 
                 position_mask[l_scaled_x : u_scaled_x, l_scaled_y: u_scaled_y] = INF
 

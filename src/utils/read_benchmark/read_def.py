@@ -317,9 +317,15 @@ def read_v(fopen, node_info, database):
                 net = pin_net[1]
                 if node_name in node_info.keys() and net in net_info.keys():
                     x_offset, y_offset = database["pin_offset"][node_type][pin]
+                    # net_info[net]["nodes"][node_name] = {
+                    #     "x_offset": x_offset,
+                    #     "y_offset": y_offset,
+                    # }
+
+                    # offset from lower left corner -> offset from center
                     net_info[net]["nodes"][node_name] = {
-                        "x_offset": x_offset,
-                        "y_offset": y_offset,
+                        "x_offset": x_offset - 0.5 * node_info[node_name]["size_x"],
+                        "y_offset": y_offset - 0.5 * node_info[node_name]["size_y"],
                     }
 
     for net_name in list(net_info.keys()):
