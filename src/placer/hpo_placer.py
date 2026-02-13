@@ -257,7 +257,7 @@ class HPOPlacer(BasicPlacer):
         # place request
         req = {
             "cmd": "place",
-            "params_update": {},
+            "params_update": self.params,
             "macro_lst": self.placedb.macro_lst,
         }
         deadline = time.time() + self.timeout_seconds
