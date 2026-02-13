@@ -243,13 +243,13 @@ class HPOPlacer(BasicPlacer):
                 entry_name = param_name
             subject[entry_name] = param_value
 
-        self.params.fromJson(params_to_update)
+        return params_to_update
 
 
     def _genotype2phenotype(self, x):
         params_name = list(params_space.keys())
         x = dict(tuple(zip(params_name, list(x))))
-        self._load_genotype(x)
+        params_to_update = self._load_genotype(x)
         
         if not self._ensure_worker():
             return {}
@@ -257,7 +257,7 @@ class HPOPlacer(BasicPlacer):
         # place request
         req = {
             "cmd": "place",
-            "params_update": self.params,
+            "params_update": params_to_update,
             "macro_lst": self.placedb.macro_lst,
         }
         deadline = time.time() + self.timeout_seconds

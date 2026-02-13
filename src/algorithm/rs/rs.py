@@ -40,10 +40,12 @@ class RS(BasicAlgo):
         self.population_hpwl = INF
 
         self.sampling = OPS_REGISTRY["sampling"][self.args.placer][self.args.sampling.lower()](self.args, self.placer)
+        self.get_next = OPS_REGISTRY["sampling"][self.args.placer][self.args.sampling.lower()](self.args, self.placer, n_repeat=1)
 
         self.args.__dict__.update(
             {"logger": logger, "record_func": self._record_results}
         )
+
     
     def run(self):
         checkpoint = self._load_checkpoint()
@@ -56,7 +58,7 @@ class RS(BasicAlgo):
                 else:
                     now_x = checkpoint["population"]
             else:
-                now_x = self.sampling.do(self.problem, 1)
+                now_x = self.get_next.do(self.problem, 1)
             
             if self.start_from_checkpoint:
                 now_hpwl = checkpoint["fitness"]
