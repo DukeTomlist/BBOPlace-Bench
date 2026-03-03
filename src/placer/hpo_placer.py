@@ -293,6 +293,7 @@ class HPOPlacer(BasicPlacer):
             self._cleanup_worker()
             return {}
 
+
         if isinstance(out, dict) and out.get("ok") and \
            isinstance(out.get("macro_pos"), dict):
             macro_pos = out["macro_pos"]

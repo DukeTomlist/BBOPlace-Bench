@@ -89,7 +89,7 @@ def res2sheet_incre(
             value = list(df["his_best_hpwl"])[len(n_eval) - 1]
             if value != INF:
                 hpwl_lst.append(value)
-            n_seed += 1
+                n_seed += 1
     if len(hpwl_lst) == 0:
         assert0(f"No result found in {res_path}")
 
