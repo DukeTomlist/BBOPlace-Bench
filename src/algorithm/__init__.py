@@ -15,3 +15,9 @@ REGISTRY["sa"] = SA
 REGISTRY["es"] = ES
 REGISTRY["pso"] = PSO
 REGISTRY["rs"] = RS
+
+try:
+    from .bo.saasbo import SAASBO
+    REGISTRY["saasbo"] = SAASBO
+except:
+    pass

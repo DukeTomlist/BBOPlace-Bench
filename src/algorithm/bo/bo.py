@@ -24,6 +24,13 @@ except:
     from botorch import fit_gpytorch_model as fit_gpytorch_mll
 from botorch.acquisition import ExpectedImprovement
 from .kernel import TransformedCategorical, OrderKernel, CombinedOrderKernel
+
+# for kernel
+from gpytorch.priors import LogNormalPrior
+from gpytorch.kernels import RBFKernel
+from gpytorch.likelihoods import GaussianLikelihood
+from gpytorch.constraints import Interval, Positive
+
 from utils.debug import * 
 from utils.constant import INF
 from utils.data_utils import FeatureCache 
@@ -151,13 +158,28 @@ class BO(BasicAlgo):
         assert not torch.isnan(train_Y).any() and not torch.isinf(train_Y).any()
         
         kernel = self._get_kernel(self.kernel_type)
-        model = SingleTaskGP(train_X, train_Y,
-                             covar_module=kernel).to(**tkwargs)
+        noise_prior = LogNormalPrior(loc=-4.0, scale=1.0)  # 0.12+ 默认噪声先验
+        likelihood = GaussianLikelihood(
+            noise_prior=noise_prior,
+            noise_constraint=Positive()
+        ).to(**tkwargs)
+
+        # model = SingleTaskGP(train_X, train_Y,
+        #                      covar_module=kernel).to(**tkwargs)
+        model = SingleTaskGP(
+            train_X=train_X,
+            train_Y=train_Y,
+            covar_module=kernel,
+            likelihood=likelihood,
+        ).to(**tkwargs)
+
+
         mll = gpytorch.mlls.ExactMarginalLogLikelihood(model.likelihood, model).to(**tkwargs)
         if state_dict is not None:
             model.load_state_dict(state_dict)
         with gpytorch.settings.cholesky_jitter(1e-4):
             fit_gpytorch_mll(mll)
+        
         return model
     
     def _init_samples(self, n_samples):  
@@ -174,12 +196,32 @@ class BO(BasicAlgo):
         return x, hpwl.reshape(-1, 1)
     
     def _get_kernel(self, kernel_type):
+        lognormal_loc = math.sqrt(2) + math.log(math.sqrt(self.dim))
+        lognormal_scale = math.sqrt(3)
+        lengthscale_prior = LogNormalPrior(
+            loc=lognormal_loc,
+            scale=lognormal_scale
+        )
+        lengthscale_constraint = Interval(lower_bound=1e-4, upper_bound=1e4)
+        # lengthscale_constraint = None
+
         if kernel_type.lower() == "tc":
-            kernel = TransformedCategorical()
+            kernel = TransformedCategorical(
+                lengthscale_prior=lengthscale_prior,
+                lengthscale_constraint=lengthscale_constraint
+            )
         elif kernel_type.lower() == "comb_order":
             kernel = CombinedOrderKernel(n=self.placer.placedb.node_cnt)
+            kernel.kernel1.lengthscale_prior = lengthscale_prior
+            kernel.kernel1.lengthscale_constraint = lengthscale_constraint
+            kernel.kernel2.lengthscale_prior = lengthscale_prior
+            kernel.kernel2.lengthscale_constraint = lengthscale_constraint
         elif kernel_type.lower() == "default":
-            kernel = None 
+            kernel = RBFKernel(
+                ard_num_dims=self.dim,  
+                lengthscale_prior=lengthscale_prior,
+                lengthscale_constraint=lengthscale_constraint
+            )
         else:
             raise NotImplementedError
         return kernel 
