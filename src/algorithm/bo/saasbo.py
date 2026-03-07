@@ -343,7 +343,7 @@ class SAASBO(BasicAlgo):
                 _, unique_indices = np.unique(train_X_int, axis=0, return_index=True)
                 
                 if len(unique_indices) < self.train_X.shape[0]:
-                    self.logger.info(f"Duplicate points found. Reducing dataset from {self.train_X.shape[0]} to {len(unique_indices)}")
+                    logging.info(f"Duplicate points found. Reducing dataset from {self.train_X.shape[0]} to {len(unique_indices)}")
                     # Keep only unique points
                     self.train_X = self.train_X[unique_indices]
                     self.train_Y = self.train_Y[unique_indices]
