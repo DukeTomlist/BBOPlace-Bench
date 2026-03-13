@@ -28,6 +28,6 @@ benchmarks_bk
 /thirdparty
 /thirdparty/dreamplace
 !/thirdparty/DREAMPlace_source
-sheets_bk
+sheets_v*
 sock_path
 **.sh
